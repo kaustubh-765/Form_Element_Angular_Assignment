@@ -2,23 +2,26 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilderService } from '../../services/form-builder.service';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+
 
 @Component({
-  selector: 'app-form-preview',
+  selector: 'app-generated-form',
   standalone: true,
   imports: [CommonModule, RouterLink],
-  template: `
-    <div class="container mt-4">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Form Preview</h2>
-        <a routerLink="/" class="btn btn-primary">Back to Builder</a>
-      </div>
-      
-      <div [innerHTML]="previewHtml"></div>
-    </div>
-  `,
+  templateUrl: './form-preview.component.html',
+  styleUrl: './form-preview.component.css',
 })
 export class FormPreviewComponent {
-  private formBuilderService = inject(FormBuilderService);
-  previewHtml = this.formBuilderService.generateHTML();
+  sanitizedHtml: SafeHtml = '';
+
+  constructor(
+    private formBuilderService: FormBuilderService,
+    private sanitizer: DomSanitizer
+  ) {}
+
+  ngOnInit() {
+    const html = this.formBuilderService.generateFormHtml();
+    this.sanitizedHtml = this.sanitizer.bypassSecurityTrustHtml(html);
+  }
 }

@@ -1,13 +1,7 @@
-export interface FormElement {
-  id: string;
+export interface FormField {
   name: string;
   type: 'text' | 'radio' | 'email' | 'dropdown' | 'checkbox' | 'file' | 'number';
   required: boolean;
   label: string;
-  options?: string[];  // For radio and checkbox
-  fileData?: {
-    filename: string;
-    content: string;
-    contentType: string;
-  };
+  options?: string[];
 }
