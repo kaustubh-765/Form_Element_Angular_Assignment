@@ -82,4 +82,21 @@
         Preview Form
       </button>
     </div>
+    <div class="mt-10">
+      <div class="card my-4">
+        <div class="card-header d-flex justify-content-between align-items-center bg-dark text-white">
+          <span>Generated HTML Code</span>
+          <button class="btn btn-outline-light btn-sm" (click)="copyCode()">
+            <i class="bi bi-clipboard"></i> Copy Code
+          </button>
+        </div>
+        <div class="card-body position-relative">
+          <pre class="language-html m-0 p-3 bg-light" style="max-height: 400px; overflow-y: auto;"><code>{{ generatedCode$ | async }}</code></pre>
+          <div *ngIf="showCopiedMessage" 
+               class="position-absolute top-0 end-0 m-3 p-2 bg-success text-white rounded">
+            Copied to clipboard!
+          </div>
+        </div>
+      </div>
+    </div>
   </div>

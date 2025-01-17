@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilderService } from '../../services/form-builder.service';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-form-builder',
@@ -14,6 +16,8 @@ export class FormBuilderComponent {
   fieldForm: FormGroup;
   formFields$: any;
   showOptionsField = false;
+  showCopiedMessage = false;
+  generatedCode$!: Observable<string>;
 
   constructor(
     private fb: FormBuilder,
@@ -26,6 +30,11 @@ export class FormBuilderComponent {
   ngOnInit(): void {
     this.initializeForm();
     this.formFields$ = this.formBuilderService.formFields$;
+
+    // Create an observable for the generated code
+    this.generatedCode$ = this.formFields$.pipe(
+      map(() => this.formatHtml(this.formBuilderService.generateFormHtml()))
+    );
   }
 
   private initializeForm(): void {
@@ -36,6 +45,44 @@ export class FormBuilderComponent {
       label: ['', Validators.required],
       options: ['']
     });
+
+    // this.fieldForm.get('type')?.setValue('text');
+  }
+
+  // Format HTML with proper indentation
+  private formatHtml(html: string): string {
+    let formatted = html.replace(/></g, '>\n<');
+    let indent = 0;
+    let result = '';
+
+    formatted.split(/\n/).forEach(line => {
+      line = line.trim();
+      if (line.match(/<\/[^>]*>/)) {
+        indent--;
+      }
+      result += '  '.repeat(indent) + line + '\n';
+      if (line.match(/<[^/][^>]*>/) && !line.match(/\/>/)) {
+        indent++;
+      }
+    });
+
+    return result.trim();
+  }
+
+  copyCode(): void {
+    const codeElement = document.querySelector('pre code');
+    if (codeElement) {
+      navigator.clipboard.writeText(codeElement.textContent || '')
+        .then(() => {
+          this.showCopiedMessage = true;
+          setTimeout(() => {
+            this.showCopiedMessage = false;
+          }, 2000);
+        })
+        .catch(err => {
+          console.error('Failed to copy text: ', err);
+        });
+    }
   }
 
   onTypeChange() {
